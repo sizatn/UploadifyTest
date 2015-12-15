@@ -1,4 +1,4 @@
-# Uploadify-jquery+jsp+servlet
+# uploadify+jsp+servlet
 
 ## Overview
 
