@@ -34,24 +34,24 @@ public class UploadFile extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String savePath = createSavePath();
+		String path = createSavePath();
 
 		List<FileItem> fileList = getFiles(request);
 
-		String filePath = saveFile(savePath, fileList);
+		String filePath = saveFile(path, fileList);
 		
-		response.getWriter().write(filePath);
+		writeDataToResponse(response, filePath);
 	}
 
 	/**
-	 * @param savePath
+	 * @param path
 	 * @param fileList
-	 * @return 
+	 * @return filePath
 	 * @desc save file
 	 * @author sizatn
 	 * @date Dec 14, 2015
 	 */
-	private String saveFile(String savePath, List<FileItem> fileList) {
+	private String saveFile(String path, List<FileItem> fileList) {
 		String fileName = "";
 		String fileType = "";
 		String filePath = "";
@@ -71,14 +71,14 @@ public class UploadFile extends HttpServlet {
 				}
 				
 				fileName = UUID.randomUUID().toString();
-				File file = new File(savePath + fileName + fileType);
+				File file = new File(path.split("\\+")[0] + fileName + fileType);
 				if (!file.exists()) {
 					try {
 						item.write(file);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					filePath = savePath + fileName + fileType;
+					filePath = path.split("\\+")[1] + fileName + fileType;
 				}
 			}
 		}
@@ -87,7 +87,7 @@ public class UploadFile extends HttpServlet {
 
 	/**
 	 * @param request
-	 * @return
+	 * @return fileList
 	 * @desc get file from request
 	 * @author sizatn
 	 * @date Dec 14, 2015
@@ -108,18 +108,40 @@ public class UploadFile extends HttpServlet {
 	}
 
 	/**
-	 * @return
+	 * @return absolutePath + relativePath
 	 * @desc create save path for file and make directory
 	 * @author sizatn
 	 * @date Dec 14, 2015
 	 */
 	private String createSavePath() {
-		String savePath = this.getServletConfig().getServletContext().getRealPath("");
-		savePath = savePath + "/uploadfiles/";
-		File file = new File(savePath);
+		// absolute path for save file
+		String absolutePath = this.getServletContext().getRealPath("");
+		
+		// relative path for read file, like image file
+		String relativePath = this.getServletContext().getContextPath();
+		
+		absolutePath = absolutePath + "/uploadfiles/";
+		File file = new File(absolutePath);
 		if (!file.exists()) {
 			file.mkdirs();
 		}
-		return savePath;
+		return absolutePath + "+" + relativePath;
+	}
+	
+	/**
+	 * @param response
+	 * @param data
+	 * @desc write data to response
+	 * @author sizatn
+	 * @date Dec 17, 2015
+	 */
+	private void writeDataToResponse(HttpServletResponse response, String data) {
+		if (data != null || data.length() > 0) {
+			try {
+				response.getWriter().write(data);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
