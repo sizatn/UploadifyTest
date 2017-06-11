@@ -1,4 +1,4 @@
-package com.sizatn.uploadifytest;
+package com.sizatn.uploadifydemo;
 
 import java.io.File;
 import java.io.IOException;
